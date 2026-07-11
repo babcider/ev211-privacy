@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!-- EV211 로컬 서버 설치·연결 안내 (사용자·관리자용 공개 지원 문서) -->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EV211 설치 및 사용 안내</title>
+<style>
+  body { font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; max-width: 820px; margin: 0 auto; padding: 24px; line-height: 1.7; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; } h2 { font-size: 1.25rem; margin-top: 2.4rem; } h3 { font-size: 1.05rem; margin-top: 1.6rem; }
+  code, pre { background: #f4f4f6; border-radius: 6px; }
+  code { padding: 1px 5px; }
+  pre { padding: 14px; overflow-x: auto; }
+  ul { padding-left: 1.2rem; }
+  .note { background: #fff8e1; border-left: 4px solid #f0c000; padding: 10px 14px; margin: 1rem 0; border-radius: 0 6px 6px 0; }
+  a { color: #b3121b; }
+  hr { margin: 3rem 0; border: none; border-top: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<h1>EV211 설치 및 사용 안내</h1>
+<p>EV211송수신기는 같은 로컬 네트워크에서 음성 방송과 무전 통신을 제공하는 앱입니다. 대부분의 사용은 <strong>폰 서버 모드</strong>만으로 충분하며, 다중 사용자·장시간 운용이나 관리자 대시보드·채널 녹음이 필요할 때 <strong>로컬 서버 모드</strong>(Ubuntu)를 선택적으로 구축합니다.</p>
+
+<h2>EV211 로컬 서버란</h2>
+<p>EV211 로컬 서버는 사용자가 직접 관리하는 Ubuntu 서버입니다. 음성 데이터는 설정된 로컬 네트워크 안에서 전달되며, EV211의 다른 온라인 서비스와 독립적으로 작동합니다.</p>
+<p>로컬 서버가 없어도 폰 서버 모드를 사용할 수 있습니다. 여러 사용자가 장시간 안정적으로 접속하거나 관리자 대시보드와 채널 녹음이 필요한 경우 Ubuntu 서버 사용을 권장합니다.</p>
+
+<h2>준비 사항</h2>
+<ul>
+  <li>Ubuntu가 설치된 PC 또는 미니 PC</li>
+  <li>Docker 및 Docker Compose</li>
+  <li>앱을 사용할 휴대폰과 같은 공유기 또는 LAN</li>
+  <li>서버에 고정된 내부 IP 또는 DHCP 예약</li>
+  <li>최소 2GB 메모리와 충분한 녹음 저장 공간</li>
+</ul>
+
+<h2>설치 예시</h2>
+<pre><code>git clone https://github.com/babcider/ev211-field-server.git
+cd ev211-field-server
+sudo ./scripts/install.sh
+sudo ev211ctl credentials
+sudo ev211ctl doctor</code></pre>
+
+<h2>네트워크 설정</h2>
+<p>서버 방화벽과 공유기 내부망에서 다음 포트를 허용합니다.</p>
+<ul>
+  <li>TCP 80, 8443</li>
+  <li>TCP 7880, 7881</li>
+  <li>UDP 50000–60000</li>
+</ul>
+<div class="note">외부 인터넷으로의 포트 포워딩은 기본 설치 방법으로 권장하지 않습니다. EV211은 내부망 사용을 전제로 설계되었습니다.</div>
+
+<h2>앱 연결 방법</h2>
+<ol>
+  <li>휴대폰과 Ubuntu 서버를 같은 Wi-Fi에 연결합니다.</li>
+  <li>앱에서 <strong>Local server</strong> 모드를 선택합니다.</li>
+  <li>서버 주소에 <code>https://서버-IP:8443</code> 을 입력합니다.</li>
+  <li>관리자가 제공한 송신 비밀번호를 입력합니다.</li>
+  <li>마이크와 로컬 네트워크 권한을 허용합니다.</li>
+  <li>채널을 선택하고 송신을 켭니다.</li>
+</ol>
+
+<h2>관리자 안내</h2>
+<p>관리자는 <code>https://서버-IP:8443/admin.html</code> 에서 방송 채널과 무전기 채널을 확인할 수 있습니다. 채널별 녹음을 시작하면 서버에서 녹음이 계속되며, 종료된 녹음은 MP3로 내려받을 수 있습니다.</p>
+<div class="note">녹음을 시작하기 전에 참가자에게 녹음 사실과 보관 기간을 반드시 고지해야 합니다. 녹음 파일은 관리자 서버에 저장되며, 개발사는 이 파일에 접근하지 않습니다.</div>
+
+<h2>서버 없이 바로 쓰기 (폰 서버 모드)</h2>
+<ol>
+  <li>두 대 이상의 휴대폰을 같은 Wi-Fi에 연결합니다.</li>
+  <li>호스트 기기: <strong>Phone as server → Phone-server walkie-talkie → Start on this phone → Start walkie-talkie</strong></li>
+  <li>참가 기기: <strong>Phone as server → Phone-server walkie-talkie → Join a walkie-talkie</strong>, 또는 호스트 화면의 QR 코드를 스캔</li>
+  <li>마이크 권한을 허용하고 송신 버튼을 누르면 같은 그룹 참가자에게 음성이 전달됩니다.</li>
+</ol>
+
+<hr>
+<p><a href="./index.html">개인정보 처리방침 보기</a> · 문의: <a href="mailto:admin@insolmnt.com">admin@insolmnt.com</a></p>
+</body>
+</html>
